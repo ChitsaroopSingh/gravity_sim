@@ -20,6 +20,12 @@ dragging = False
 last_mouse_pos = None
 zoom = 1.0
 
+#custom body
+creating_body = False
+start_world_pos = None
+
+
+
 #Format: Body(mass, (initial positions),(direction of velocity))
 bodies = [
     Body(100, (400, 200), (100, 50)),
@@ -42,10 +48,34 @@ while running:
             if event.button == 2:
                 dragging=True
                 last_mouse_pos=pygame.mouse.get_pos()
+            if event.button == 1:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                world_x = camera_x + mouse_x / zoom
+                world_y = camera_y + mouse_y / zoom
+                creating_body = True
+                start_world_pos = (world_x, world_y)
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 2:
                 dragging=False
                 last_mouse_pos=pygame.mouse.get_pos()
+            if event.button == 1 and creating_body:
+                mouse_x,mouse_y = pygame.mouse.get_pos()
+
+                end_world_x = camera_x + mouse_x / zoom
+                end_world_y = camera_y + mouse_y / zoom
+
+                vx = (end_world_x - start_world_pos[0]) * 2
+                vy = (end_world_y - start_world_pos[1]) * 2
+
+                bodies.append(Body(mass=100,
+                                   position=start_world_pos,
+                                   velocity=(vx,vy)
+                                )
+                            )
+                colors.append("black")
+                creating_body = False
+
+
         elif event.type == pygame.MOUSEMOTION:
             if dragging:
                 mouse_x,mouse_y=pygame.mouse.get_pos()
@@ -120,6 +150,16 @@ while running:
             pygame.draw.lines(screen,color,False,[(int((p[0]-camera_x) * zoom), int((p[1]-camera_y) * zoom )) for p in body.trail],2)
         radius=max(2, int(40*zoom))
         pygame.draw.circle(screen,color,(int(screen_x), int(screen_y)),radius)
+
+    if creating_body:
+        mouse_x,mouse_y=pygame.mouse.get_pos()
+
+        start_screen_x = int((start_world_pos[0]- camera_x) * zoom )
+        start_screen_y = int((start_world_pos[1]- camera_y) * zoom )
+
+        pygame.draw.line(screen,"black",(start_screen_x,start_screen_y),(mouse_x,mouse_y),3)
+
+
 
     pygame.display.flip()
 
