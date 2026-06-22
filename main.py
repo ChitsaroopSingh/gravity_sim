@@ -24,6 +24,10 @@ zoom = 1.0
 creating_body = False
 start_world_pos = None
 
+#background
+bg_image=pygame.image.load("assets/space.jpeg").convert()
+bg_image = pygame.transform.scale(bg_image, (1280,720))
+
 
 
 #Format: Body(mass, (initial positions),(direction of velocity))
@@ -120,7 +124,8 @@ while running:
     
 
     # fill the screen with a color to wipe away anything from last frame
-    screen.fill("white")
+    # screen.fill("background.jpeg")
+    screen.blit(bg_image, (0, 0))
 
     # RENDER YOUR GAME HERE
 
