@@ -22,9 +22,9 @@ zoom = 1.0
 
 #Format: Body(mass, (initial positions),(direction of velocity))
 bodies = [
-    Body(100, (100, 200), (100, 50)),
-    Body(400, (500, 200), (-50, 80)),
-    Body(200, (600, 400), (30, -100))
+    Body(100, (400, 200), (100, 50)),
+    Body(400, (200, 300), (-50, 80)),
+    Body(200, (700, 400), (30, -100))
 ]
 colors=["green","red","blue"]
 
@@ -58,10 +58,20 @@ while running:
 
                 last_mouse_pos = (mouse_x,mouse_y)
         elif event.type == pygame.MOUSEWHEEL:
+            mouse_x,mouse_y=pygame.mouse.get_pos()
+
+            world_x = camera_x + mouse_x/zoom
+            world_y = camera_y + mouse_y/zoom
+
             if event.y > 0:
                 zoom *= 1.1
             elif event.y < 0:
                 zoom /= 1.1
+            
+            camera_x = world_x - mouse_x / zoom
+            camera_y = world_y - mouse_y / zoom
+
+
     
     #camera panning
     keys = pygame.key.get_pressed()
