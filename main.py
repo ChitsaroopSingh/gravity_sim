@@ -21,6 +21,9 @@ dragging = False
 last_mouse_pos = None
 zoom = 1.0
 
+#pausing feature
+paused=False
+
 #custom body
 creating_body = False
 start_world_pos = None
@@ -49,6 +52,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_x:
                 running = False
+            if event.key == pygame.K_SPACE:
+                paused = not paused
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 2:
                 dragging=True
@@ -106,6 +111,7 @@ while running:
             
             camera_x = world_x - mouse_x / zoom
             camera_y = world_y - mouse_y / zoom
+            
 
 
     
@@ -127,23 +133,23 @@ while running:
     #setting the background
     screen.blit(bg_image, (0, 0))
 
+    if not paused:
+        accelerations=[]
 
-    accelerations=[]
+        #Computing all accelerations first
+        for body in bodies:
+            acc=compute_acceleration(body,bodies)
+            accelerations.append(np.array(acc))
+            # print(compute_acceleration(body,bodies))
+        
+        #Updating velocities and postions
+        for body,acc in zip(bodies,accelerations):
+            body.velocity += acc*dt
+            body.position += body.velocity*dt
 
-    #Computing all accelerations first
-    for body in bodies:
-        acc=compute_acceleration(body,bodies)
-        accelerations.append(np.array(acc))
-        # print(compute_acceleration(body,bodies))
-    
-    #Updating velocities and postions
-    for body,acc in zip(bodies,accelerations):
-        body.velocity += acc*dt
-        body.position += body.velocity*dt
-
-        body.trail.append((body.position[0], body.position[1]))
-        if len(body.trail)>500:
-            body.trail.pop(0)
+            body.trail.append((body.position[0], body.position[1]))
+            if len(body.trail)>500:
+                body.trail.pop(0)
     #collisions
     to_remove=set()
     to_add=[]
@@ -175,10 +181,6 @@ while running:
     
     bodies=[b for b in bodies if b not in to_remove]
     bodies.extend(to_add)
-        
-   
-
-
 
     for body in bodies:
         screen_x=(body.position[0] - camera_x) * zoom
