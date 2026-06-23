@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import math
 
 from physics.body import Body
 from physics.gravity import compute_acceleration
@@ -122,12 +123,9 @@ while running:
         camera_y += camera_speed
 
     
-
-    # fill the screen with a color to wipe away anything from last frame
-    # screen.fill("background.jpeg")
+    #setting the background
     screen.blit(bg_image, (0, 0))
 
-    # RENDER YOUR GAME HERE
 
     accelerations=[]
 
@@ -145,6 +143,24 @@ while running:
         body.trail.append((body.position[0], body.position[1]))
         if len(body.trail)>500:
             body.trail.pop(0)
+    #collisions
+    for i in range(len(bodies)):
+        for j in range(i+1,len(bodies)):
+            body1=bodies[i]
+            body2=bodies[j]
+
+            dx=body2.position[0]-body1.position[0]
+            dy=body2.position[1]-body1.position[1]
+
+            distance=math.sqrt(dx**2 + dy**2) 
+            if distance < body1.radius + body2.radius :
+                print("collision")
+                break
+
+    
+    
+        
+   
 
 
 
@@ -153,8 +169,8 @@ while running:
         screen_y=(body.position[1] - camera_y) * zoom
         if len(body.trail)>1:
             pygame.draw.lines(screen,color,False,[(int((p[0]-camera_x) * zoom), int((p[1]-camera_y) * zoom )) for p in body.trail],2)
-        radius=max(2, int(40*zoom))
-        pygame.draw.circle(screen,color,(int(screen_x), int(screen_y)),radius)
+        # radius=max(2, int(40*zoom))
+        pygame.draw.circle(screen,color,(int(screen_x), int(screen_y)),body.radius)
 
     if creating_body:
         mouse_x,mouse_y=pygame.mouse.get_pos()
