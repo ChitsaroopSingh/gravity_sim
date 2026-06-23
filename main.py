@@ -144,6 +144,9 @@ while running:
         if len(body.trail)>500:
             body.trail.pop(0)
     #collisions
+    to_remove=set()
+    to_add=[]
+
     for i in range(len(bodies)):
         for j in range(i+1,len(bodies)):
             body1=bodies[i]
@@ -154,8 +157,13 @@ while running:
 
             distance=math.sqrt(dx**2 + dy**2) 
             if distance < body1.radius + body2.radius :
-                print("collision")
-                break
+                new_mass = body1.mass + body2.mass
+                #formulas for centre of mass 
+                new_x = ((body1.position[0])*(body1.mass)+(body2.position[0])*(body2.mass)) / new_mass
+                new_y = ((body1.position[1])*(body1.mass)+(body2.position[1])*(body2.mass)) / new_mass
+
+                new_vx = ((body1.velocity[0])*(body1.mass)+(body2.velocity[0])*(body2.mass)) / new_mass
+                new_vy = ((body1.velocity[1])*(body1.mass)+(body2.velocity[1])*(body2.mass)) / new_mass
 
     
     
