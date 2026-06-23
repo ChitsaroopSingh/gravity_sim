@@ -33,9 +33,9 @@ bg_image = pygame.transform.scale(bg_image, (1280,720))
 
 #Format: Body(mass, (initial positions),(direction of velocity))
 bodies = [
-    Body(100, (400, 200), (100, 50)),
-    Body(400, (200, 300), (-50, 80)),
-    Body(200, (700, 400), (30, -100))
+    Body(100, (400, 200), (100, 50),color="green"),
+    Body(400, (200, 300), (-50, 80),color="red"),
+    Body(200, (700, 400), (30, -100),color="blue")
 ]
 colors=["green","red","blue"]
 
@@ -74,7 +74,8 @@ while running:
 
                 bodies.append(Body(mass=100,
                                    position=start_world_pos,
-                                   velocity=(vx,vy)
+                                   velocity=(vx,vy),
+                                   color="black"
                                 )
                             )
                 colors.append("black")
@@ -158,27 +159,34 @@ while running:
             distance=math.sqrt(dx**2 + dy**2) 
             if distance < body1.radius + body2.radius :
                 new_mass = body1.mass + body2.mass
-                #formulas for centre of mass 
+                #formulas for centre of mass and velocities
                 new_x = ((body1.position[0])*(body1.mass)+(body2.position[0])*(body2.mass)) / new_mass
                 new_y = ((body1.position[1])*(body1.mass)+(body2.position[1])*(body2.mass)) / new_mass
 
                 new_vx = ((body1.velocity[0])*(body1.mass)+(body2.velocity[0])*(body2.mass)) / new_mass
                 new_vy = ((body1.velocity[1])*(body1.mass)+(body2.velocity[1])*(body2.mass)) / new_mass
 
+                merged = Body(new_mass,(new_x,new_y),(new_vx,new_vy),color="white")
+                
+                to_remove.add(body1)
+                to_remove.add(body2)
+
+                to_add.append(merged)
     
-    
+    bodies=[b for b in bodies if b not in to_remove]
+    bodies.extend(to_add)
         
    
 
 
 
-    for body,color in zip(bodies,colors):
+    for body in bodies:
         screen_x=(body.position[0] - camera_x) * zoom
         screen_y=(body.position[1] - camera_y) * zoom
         if len(body.trail)>1:
-            pygame.draw.lines(screen,color,False,[(int((p[0]-camera_x) * zoom), int((p[1]-camera_y) * zoom )) for p in body.trail],2)
+            pygame.draw.lines(screen,body.color,False,[(int((p[0]-camera_x) * zoom), int((p[1]-camera_y) * zoom )) for p in body.trail],2)
         # radius=max(2, int(40*zoom))
-        pygame.draw.circle(screen,color,(int(screen_x), int(screen_y)),body.radius)
+        pygame.draw.circle(screen,body.color,(int(screen_x), int(screen_y)),body.radius)
 
     if creating_body:
         mouse_x,mouse_y=pygame.mouse.get_pos()
