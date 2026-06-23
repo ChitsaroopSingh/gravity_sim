@@ -35,6 +35,8 @@ start_world_pos = None
 bg_image=pygame.image.load("assets/space.jpeg").convert()
 bg_image = pygame.transform.scale(bg_image, (1280,720))
 
+#initializing font
+font = pygame.font.SysFont(None, 30)
 
 
 #Format: Body(mass, (initial positions),(direction of velocity))
@@ -141,7 +143,10 @@ while running:
     
     #setting the background
     screen.blit(bg_image, (0, 0))
-
+    if paused:
+        text = font.render("PAUSED",True,"yellow")
+        rect = text.get_rect(center=(640,60))
+        screen.blit(text,rect)
     if not paused:
         accelerations=[]
 
