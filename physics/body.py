@@ -5,9 +5,7 @@ class Body:
         self.mass = mass
         self.position = np.array(position, dtype = float)
         self.velocity = np.array(velocity, dtype = float)
-
-        #self.acceleration = np.zeros(2)
-
+        self.radius = max(5, int(self.mass ** 0.3))
 
         self.trail = []
         
