@@ -24,6 +24,9 @@ zoom = 1.0
 #pausing feature
 paused=False
 
+#time scaling
+time_scale = 1
+
 #custom body
 creating_body = False
 start_world_pos = None
@@ -44,7 +47,7 @@ colors=["green","red","blue"]
 
 while running:
     # dt = clock.tick(60) / 1000  # seconds
-    dt=0.01
+    dt=0.01 * time_scale
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -52,8 +55,14 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_x:
                 running = False
-            if event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 paused = not paused
+            elif event.key == pygame.K_COMMA:
+                time_scale /= 2
+            elif event.key == pygame.K_PERIOD:
+                time_scale *= 2
+        
+        
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 2:
                 dragging=True
