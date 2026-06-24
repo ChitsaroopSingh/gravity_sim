@@ -4,7 +4,11 @@ import math
 
 from physics.body import Body
 from physics.gravity import compute_acceleration
-
+from physics.collisions import handle_collisions
+from physics.simulation import update_bodies
+from rendering.camera import Camera
+from rendering.renderer import draw_bodies
+from controls.camera_controls import update_camera_keyboard
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -14,12 +18,10 @@ pygame.display.set_caption("Gravity Simulator")
 
 pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 
-#camera offset
-camera_x=0
-camera_y=0
+
 dragging = False
 last_mouse_pos = None
-zoom = 1.0
+camera=Camera()
 
 #pausing feature
 paused=False
@@ -38,19 +40,29 @@ bg_image = pygame.transform.scale(bg_image, (1280,720))
 #initializing font
 font = pygame.font.SysFont(None, 30)
 
+#initializing states
+state="setup"
 
+input_mass = 100
+input_x = 400
+input_y = 300
+input_vx = 0
+input_vy = 0
+
+bodies = []
 #Format: Body(mass, (initial positions),(direction of velocity))
-bodies = [
-    Body(100, (400, 200), (100, 50),color="green"),
-    Body(400, (200, 300), (-50, 80),color="red"),
-    Body(200, (700, 400), (30, -100),color="blue")
-]
-colors=["green","red","blue"]
+# bodies = [
+#     Body(100, (400, 200), (100, 50),color="green"),
+#     Body(400, (200, 300), (-50, 80),color="red"),
+#     Body(200, (700, 400), (30, -100),color="blue")
+# ]
+
 
 while running:
-    # dt = clock.tick(60) / 1000  # seconds
+
+
     dt=0.01 * time_scale
-    # pygame.QUIT event means the user clicked X to close your window
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -63,6 +75,8 @@ while running:
                 time_scale /= 2
             elif event.key == pygame.K_PERIOD:
                 time_scale *= 2
+            elif event.key == pygame.K_RETURN:
+                state = "simulation"
         
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -71,8 +85,7 @@ while running:
                 last_mouse_pos=pygame.mouse.get_pos()
             if event.button == 1:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                world_x = camera_x + mouse_x / zoom
-                world_y = camera_y + mouse_y / zoom
+                world_x, world_y = camera.screen_to_world((mouse_x, mouse_y))
                 creating_body = True
                 start_world_pos = (world_x, world_y)
         elif event.type == pygame.MOUSEBUTTONUP:
@@ -81,20 +94,12 @@ while running:
                 last_mouse_pos=pygame.mouse.get_pos()
             if event.button == 1 and creating_body:
                 mouse_x,mouse_y = pygame.mouse.get_pos()
-
-                end_world_x = camera_x + mouse_x / zoom
-                end_world_y = camera_y + mouse_y / zoom
+                end_world_x, end_world_y = camera.screen_to_world((mouse_x, mouse_y))
 
                 vx = (end_world_x - start_world_pos[0]) * 2
                 vy = (end_world_y - start_world_pos[1]) * 2
 
-                bodies.append(Body(mass=100,
-                                   position=start_world_pos,
-                                   velocity=(vx,vy),
-                                   color="black"
-                                )
-                            )
-                colors.append("black")
+                bodies.append(Body(mass=100,position=start_world_pos,velocity=(vx,vy),color="white"))
                 creating_body = False
 
 
@@ -105,115 +110,58 @@ while running:
                 dx=mouse_x-last_mouse_pos[0]
                 dy=mouse_y-last_mouse_pos[1]
 
-                camera_x -= dx
-                camera_y -= dy 
+                camera.x -= dx
+                camera.y -= dy 
 
                 last_mouse_pos = (mouse_x,mouse_y)
         elif event.type == pygame.MOUSEWHEEL:
             mouse_x,mouse_y=pygame.mouse.get_pos()
 
-            world_x = camera_x + mouse_x/zoom
-            world_y = camera_y + mouse_y/zoom
+            world_x, world_y = camera.screen_to_world((mouse_x, mouse_y))
 
             if event.y > 0:
-                zoom *= 1.1
+                camera.zoom *= 1.1
             elif event.y < 0:
-                zoom /= 1.1
+                camera.zoom /= 1.1
             
-            camera_x = world_x - mouse_x / zoom
-            camera_y = world_y - mouse_y / zoom
-            
+            camera.x = world_x - mouse_x / camera.zoom
+            camera.y = world_y - mouse_y / camera.zoom
+    if state == "setup":
+        screen.fill("black")
 
+        text = font.render("SETUP SCREEN", True, "white")
+        screen.blit(text, (500, 100))
 
-    
-    #camera panning
-    keys = pygame.key.get_pressed()
+        hint = font.render("Press ENTER to start simulation", True, "white")
+        screen.blit(hint, (420, 200))
 
-    camera_speed = 500 * dt
+        pygame.display.flip()
+        clock.tick(60)
 
-    if keys[pygame.K_a]:
-        camera_x -= camera_speed
-    if keys[pygame.K_d]:
-        camera_x += camera_speed
-    if keys[pygame.K_w]:
-        camera_y -= camera_speed
-    if keys[pygame.K_s]:
-        camera_y += camera_speed
-
-    
+        continue
+    update_camera_keyboard(camera, dt)
+ 
     #setting the background
     screen.blit(bg_image, (0, 0))
     if paused:
         text = font.render("PAUSED",True,"yellow")
         rect = text.get_rect(center=(640,60))
         screen.blit(text,rect)
-    if not paused:
-        accelerations=[]
+    if state == "simulation":
+        if not paused:
+            update_bodies(bodies, dt)
 
-        #Computing all accelerations first
-        for body in bodies:
-            acc=compute_acceleration(body,bodies)
-            accelerations.append(np.array(acc))
-            # print(compute_acceleration(body,bodies))
-        
-        #Updating velocities and postions
-        for body,acc in zip(bodies,accelerations):
-            body.velocity += acc*dt
-            body.position += body.velocity*dt
-
-            body.trail.append((body.position[0], body.position[1]))
-            if len(body.trail)>500:
-                body.trail.pop(0)
-    #collisions
-    to_remove=set()
-    to_add=[]
-
-    for i in range(len(bodies)):
-        for j in range(i+1,len(bodies)):
-            body1=bodies[i]
-            body2=bodies[j]
-
-            dx=body2.position[0]-body1.position[0]
-            dy=body2.position[1]-body1.position[1]
-
-            distance=math.sqrt(dx**2 + dy**2) 
-            if distance < body1.radius + body2.radius :
-                new_mass = body1.mass + body2.mass
-                #formulas for centre of mass and velocities
-                new_x = ((body1.position[0])*(body1.mass)+(body2.position[0])*(body2.mass)) / new_mass
-                new_y = ((body1.position[1])*(body1.mass)+(body2.position[1])*(body2.mass)) / new_mass
-
-                new_vx = ((body1.velocity[0])*(body1.mass)+(body2.velocity[0])*(body2.mass)) / new_mass
-                new_vy = ((body1.velocity[1])*(body1.mass)+(body2.velocity[1])*(body2.mass)) / new_mass
-
-                merged = Body(new_mass,(new_x,new_y),(new_vx,new_vy),color="white")
-                
-                to_remove.add(body1)
-                to_remove.add(body2)
-
-                to_add.append(merged)
+    bodies = handle_collisions(bodies)
     
-    bodies=[b for b in bodies if b not in to_remove]
-    bodies.extend(to_add)
-
-    for body in bodies:
-        screen_x=(body.position[0] - camera_x) * zoom
-        screen_y=(body.position[1] - camera_y) * zoom
-        if len(body.trail)>1:
-            pygame.draw.lines(screen,body.color,False,[(int((p[0]-camera_x) * zoom), int((p[1]-camera_y) * zoom )) for p in body.trail],2)
-        # radius=max(2, int(40*zoom))
-        pygame.draw.circle(screen,body.color,(int(screen_x), int(screen_y)),body.radius)
+    draw_bodies(screen,bodies,camera)
 
     if creating_body:
         mouse_x,mouse_y=pygame.mouse.get_pos()
 
-        start_screen_x = int((start_world_pos[0]- camera_x) * zoom )
-        start_screen_y = int((start_world_pos[1]- camera_y) * zoom )
+        start_screen_x, start_screen_y = camera.world_to_screen(start_world_pos)
 
         pygame.draw.line(screen,"black",(start_screen_x,start_screen_y),(mouse_x,mouse_y),3)
-
-
-
+    
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60
