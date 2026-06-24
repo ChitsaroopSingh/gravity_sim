@@ -13,6 +13,7 @@ def handle_collisions(bodies):
                 dy=body2.position[1]-body1.position[1]
 
                 distance=math.sqrt(dx**2 + dy**2) 
+
                 if distance < body1.radius + body2.radius :
                     new_mass = body1.mass + body2.mass
                     #formulas for centre of mass and velocities
@@ -21,12 +22,12 @@ def handle_collisions(bodies):
 
                     new_vx = ((body1.velocity[0])*(body1.mass)+(body2.velocity[0])*(body2.mass)) / new_mass
                     new_vy = ((body1.velocity[1])*(body1.mass)+(body2.velocity[1])*(body2.mass)) / new_mass
-                merged = Body(new_mass,(new_x,new_y),(new_vx,new_vy),color="white")
+                    merged = Body(new_mass,(new_x,new_y),(new_vx,new_vy),color="white")
                 
-                to_remove.add(body1)
-                to_remove.add(body2)
+                    to_remove.add(body1)
+                    to_remove.add(body2)
 
-                to_add.append(merged)
+                    to_add.append(merged)
     
     bodies=[b for b in bodies if b not in to_remove]
     bodies.extend(to_add)
