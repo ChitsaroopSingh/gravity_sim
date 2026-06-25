@@ -1,0 +1,37 @@
+# Window
+
+WIDTH = 1200
+HEIGHT = 800
+FPS = 60
+
+# Physics
+
+G = 50000
+TIME_STEP = 1
+
+# Colors
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+
+RED = (255, 50, 50)
+GREEN = (50, 255, 50)
+BLUE = (50, 50, 255)
+
+GRAY = (100, 100, 100)
+DARK_GRAY = (40, 40, 40)
+
+# Camera
+
+DEFAULT_ZOOM = 1.0
+ZOOM_SPEED = 0.1
+
+# UI
+
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 50
+
+PANEL_WIDTH = 350
+
+TITLE_SIZE = 48
+TEXT_SIZE = 24
