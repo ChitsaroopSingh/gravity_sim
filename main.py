@@ -10,6 +10,7 @@ from rendering.camera import Camera
 from rendering.renderer import draw_bodies
 from controls.camera_controls import update_camera_keyboard
 from utils.constants import *
+from ui.panel import Panel
 
 # pygame setup
 pygame.init()
@@ -24,6 +25,7 @@ pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
 dragging = False
 last_mouse_pos = None
 camera=Camera()
+panel=Panel()
 
 #pausing feature
 paused=False
@@ -63,7 +65,7 @@ body_colors = ["red", "green", "blue"]
 while running:
 
 
-    dt=0.01 * time_scale
+    dt=0.002 * time_scale
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -163,7 +165,15 @@ while running:
         bodies = handle_collisions(bodies)
     
     draw_bodies(screen,bodies,camera)
+    
+    stats = {
+    "FPS": int(clock.get_fps()),
+    "Bodies": len(bodies),
+    "Time": f"x{time_scale}",
+    "Zoom": round(camera.zoom, 2),
+    "Paused": paused}
 
+    panel.draw(screen,stats)
     if creating_body:
         mouse_x,mouse_y=pygame.mouse.get_pos()
 
