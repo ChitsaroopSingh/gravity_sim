@@ -9,6 +9,8 @@ from physics.simulation import update_bodies
 from rendering.camera import Camera
 from rendering.renderer import draw_bodies
 from controls.camera_controls import update_camera_keyboard
+from utils.constants import *
+
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -43,11 +45,11 @@ font = pygame.font.SysFont(None, 30)
 #initializing states
 state="setup"
 
-input_mass = 100
-input_x = 400
-input_y = 300
-input_vx = 0
-input_vy = 0
+current_mass = 100
+# input_x = 400
+# input_y = 300
+# input_vx = 0
+# input_vy = 0
 
 bodies = []
 #Format: Body(mass, (initial positions),(direction of velocity))
@@ -57,7 +59,7 @@ bodies = []
 #     Body(200, (700, 400), (30, -100),color="blue")
 # ]
 
-
+body_colors = ["red", "green", "blue"]
 while running:
 
 
@@ -76,14 +78,15 @@ while running:
             elif event.key == pygame.K_PERIOD:
                 time_scale *= 2
             elif event.key == pygame.K_RETURN:
-                state = "simulation"
+                if len(bodies)>=2:
+                    state = "simulation"
         
         
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 2:
                 dragging=True
                 last_mouse_pos=pygame.mouse.get_pos()
-            if event.button == 1:
+            if event.button == 1 and len(bodies) < 3:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 world_x, world_y = camera.screen_to_world((mouse_x, mouse_y))
                 creating_body = True
@@ -98,8 +101,9 @@ while running:
 
                 vx = (end_world_x - start_world_pos[0]) * 2
                 vy = (end_world_y - start_world_pos[1]) * 2
-
-                bodies.append(Body(mass=100,position=start_world_pos,velocity=(vx,vy),color="white"))
+                
+                color = body_colors[len(bodies)]
+                bodies.append(Body(mass=current_mass,position=start_world_pos,velocity=(vx,vy),color=color))
                 creating_body = False
 
 
@@ -115,30 +119,35 @@ while running:
 
                 last_mouse_pos = (mouse_x,mouse_y)
         elif event.type == pygame.MOUSEWHEEL:
-            mouse_x,mouse_y=pygame.mouse.get_pos()
-
-            world_x, world_y = camera.screen_to_world((mouse_x, mouse_y))
-
-            if event.y > 0:
-                camera.zoom *= 1.1
-            elif event.y < 0:
-                camera.zoom /= 1.1
+            if state == "setup" :
+                current_mass += event.y * 10
+                current_mass = max(10, current_mass)
             
-            camera.x = world_x - mouse_x / camera.zoom
-            camera.y = world_y - mouse_y / camera.zoom
-    if state == "setup":
-        screen.fill("black")
+            else:
+                mouse_x,mouse_y=pygame.mouse.get_pos()
 
-        text = font.render("SETUP SCREEN", True, "white")
-        screen.blit(text, (500, 100))
+                world_x, world_y = camera.screen_to_world((mouse_x, mouse_y))
 
-        hint = font.render("Press ENTER to start simulation", True, "white")
-        screen.blit(hint, (420, 200))
+                if event.y > 0:
+                    camera.zoom *= 1.1
+                elif event.y < 0:
+                    camera.zoom /= 1.1
+                
+                camera.x = world_x - mouse_x / camera.zoom
+                camera.y = world_y - mouse_y / camera.zoom
+    # if state == "setup":
+    #     screen.fill("black")
 
-        pygame.display.flip()
-        clock.tick(60)
+    #     text = font.render("SETUP SCREEN", True, "white")
+    #     screen.blit(text, (500, 100))
 
-        continue
+    #     hint = font.render("Press ENTER to start simulation", True, "white")
+    #     screen.blit(hint, (420, 200))
+
+    #     pygame.display.flip()
+    #     clock.tick(60)
+
+    #     continue
     update_camera_keyboard(camera, dt)
  
     #setting the background
@@ -151,7 +160,7 @@ while running:
         if not paused:
             update_bodies(bodies, dt)
 
-    bodies = handle_collisions(bodies)
+        bodies = handle_collisions(bodies)
     
     draw_bodies(screen,bodies,camera)
 
@@ -162,6 +171,44 @@ while running:
 
         pygame.draw.line(screen,"black",(start_screen_x,start_screen_y),(mouse_x,mouse_y),3)
     
+    if state == "setup":
+
+        text1 = font.render(
+            f"Current Mass: {current_mass}",
+            True,
+            "white"
+        )
+
+        text2 = font.render(
+            f"Bodies: {len(bodies)}/3",
+            True,
+            "white"
+        )
+
+        text3 = font.render(
+            "Click + Drag = Create Body",
+            True,
+            "white"
+        )
+
+        text4 = font.render(
+            "Mouse Wheel = Change Mass",
+            True,
+            "white"
+        )
+
+        text5 = font.render(
+            "ENTER = Start Simulation",
+            True,
+            "yellow"
+        )
+
+        screen.blit(text1, (20,20))
+        screen.blit(text2, (20,50))
+        screen.blit(text3, (20,90))
+        screen.blit(text4, (20,120))
+        screen.blit(text5, (20,150))
+
     pygame.display.flip()
 
     clock.tick(60)  # limits FPS to 60
