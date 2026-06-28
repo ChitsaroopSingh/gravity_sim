@@ -1,5 +1,5 @@
 import pygame
-
+from ui.button import Button
 
 class Panel:
 
@@ -12,7 +12,24 @@ class Panel:
         
         self.title_font = pygame.font.SysFont(None, 34)
         self.text_font = pygame.font.SysFont(None, 28)       
+        self.buttons = []
 
+        labels = [
+            "Random",
+            "Sun-Earth",
+            "Earth-Moon",
+            "Binary Stars",
+            "Figure-8",
+            "Infinity",
+            "Solar System"
+        ]
+
+        y = 270
+
+        for label in labels:
+
+            self.buttons.append(Button(label,995,y,250,35))
+            y += 45
     def draw(self, screen, stats):
 
         panel_rect = pygame.Rect(screen.get_width() - self.width, 0,self.width,screen.get_height())
@@ -62,21 +79,10 @@ class Panel:
         screen.blit(heading,(panel_rect.left+20,y))
         y+=40
 
-        presets = [
-        "Random System",
-        "Sun - Earth",
-        "Earth - Moon",
-        "Binary Stars",
-        "Figure-8 Orbit",
-        "Infinity Orbit",
-        "Solar System"
-        ]
 
-        for preset in presets:
-            txt = self.text_font.render(preset,True,(170,220,255))
 
-            screen.blit(txt, (panel_rect.left+30,y))
-            y += 30
+        for button in self.buttons:
+            button.draw(screen)
 
         y+=15
 
@@ -104,3 +110,9 @@ class Panel:
 
             screen.blit(txt,(panel_rect.left+30,y))
             y += 30
+
+    def handle_event(self,event):
+        for button in self.buttons:
+            if button.is_clicked(event):
+                return button.text
+        return None
