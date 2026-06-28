@@ -137,6 +137,10 @@ while running:
                 
                 camera.x = world_x - mouse_x / camera.zoom
                 camera.y = world_y - mouse_y / camera.zoom
+
+        clicked = panel.handle_event(event)
+        if clicked:
+            print(clicked)
     # if state == "setup":
     #     screen.fill("black")
 
