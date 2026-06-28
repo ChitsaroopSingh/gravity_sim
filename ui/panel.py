@@ -80,11 +80,11 @@ class Panel:
         y+=40
 
 
-
+        ###wip
         for button in self.buttons:
             button.draw(screen)
 
-        y+=15
+        
 
         pygame.draw.line(screen,(70,70,70),(panel_rect.left+15,y),(panel_rect.right-15,y),2)
 
@@ -104,12 +104,7 @@ class Panel:
         "Clear Bodies"
         ]
 
-        for action in actions:
-
-            txt = self.text_font.render(action,True,(255,180,180))
-
-            screen.blit(txt,(panel_rect.left+30,y))
-            y += 30
+        
 
     def handle_event(self,event):
         for button in self.buttons:
