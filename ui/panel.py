@@ -83,3 +83,24 @@ class Panel:
         pygame.draw.line(screen,(70,70,70),(panel_rect.left+15,y),(panel_rect.right-15,y),2)
 
         y += 20
+
+        # actions
+
+        heading = self.text_font.render("Actions",True,(255,255,120))
+
+        screen.blit(heading,(panel_rect.left+20,y))
+
+        y+=40
+
+        actions = [
+        "Pause",
+        "Reset Camera",
+        "Clear Bodies"
+        ]
+
+        for action in actions:
+
+            txt = self.text_font.render(action,True,(255,180,180))
+
+            screen.blit(txt,(panel_rect.left+30,y))
+            y += 30
