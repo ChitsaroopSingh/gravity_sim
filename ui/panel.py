@@ -12,7 +12,9 @@ class Panel:
         
         self.title_font = pygame.font.SysFont(None, 34)
         self.text_font = pygame.font.SysFont(None, 28)       
-        self.buttons = []
+        self.preset_buttons = []
+        self.action_buttons = []
+
 
         labels = [
             "Random",
@@ -25,11 +27,25 @@ class Panel:
         ]
 
         y = 270
-
+        panel_x = 1280 - self.width
         for label in labels:
 
-            self.buttons.append(Button(label,995,y,250,35))
+            self.preset_buttons.append(Button(label,panel_x+20,y,self.width-40,35))
             y += 45
+
+        action_labels = [
+            "Pause",
+            "Reset Camera",
+            "Clear Bodies"
+        ]
+
+        y=620
+
+        for label in action_labels:
+            self.action_buttons.append(Button(label,panel_x+20,y,self.width-40,35))
+            y+=45
+
+        
     def draw(self, screen, stats):
 
         panel_rect = pygame.Rect(screen.get_width() - self.width, 0,self.width,screen.get_height())
@@ -67,7 +83,7 @@ class Panel:
             y += 28
 
         y+=15
-
+        y+=len(self.preset_buttons)*45
         pygame.draw.line(screen,(70,70,70),(panel_rect.left+15,y),(panel_rect.right-15,y),2)
 
         y+=20
@@ -81,7 +97,7 @@ class Panel:
 
 
         ###wip
-        for button in self.buttons:
+        for button in self.preset_buttons:
             button.draw(screen)
 
         
@@ -98,16 +114,17 @@ class Panel:
 
         y+=40
 
-        actions = [
-        "Pause",
-        "Reset Camera",
-        "Clear Bodies"
-        ]
+        for button in self.action_buttons:
+            button.draw(screen)
+
 
         
 
     def handle_event(self,event):
-        for button in self.buttons:
+        for button in self.preset_buttons:
+            if button.is_clicked(event):
+                return button.text
+        for button in self.action_buttons:
             if button.is_clicked(event):
                 return button.text
         return None
