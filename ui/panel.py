@@ -3,16 +3,16 @@ from ui.button import Button
 
 class Panel:
 
-    def __init__(self, width=300):
+    def __init__(self, width=280):
 
         self.width = width
 
         self.background = (20, 20, 30)
         self.border = (120, 120, 120)
         
-        self.title_font = pygame.font.SysFont("Segoe UI", 26, bold=True)
-        self.heading_font = pygame.font.SysFont("Segoe UI", 22, bold=True)
-        self.text_font = pygame.font.SysFont("Segoe UI", 18)      
+        self.title_font = pygame.font.SysFont("Segoe UI", 22, bold=True)
+        self.heading_font = pygame.font.SysFont("Segoe UI", 28, bold=True)
+        self.text_font = pygame.font.SysFont("Segoe UI", 16)      
         self.preset_buttons = []
         self.action_buttons = []
 
@@ -27,12 +27,8 @@ class Panel:
             "Solar System"
         ]
 
-        y = 270
-        panel_x = 1280 - self.width
         for label in labels:
-
-            self.preset_buttons.append(Button(label,panel_x+20,y,self.width-40,30))
-            y += 45
+            self.preset_buttons.append(Button(label,0,0,0,26))
 
         action_labels = [
             "Pause",
@@ -40,16 +36,17 @@ class Panel:
             "Clear Bodies"
         ]
 
-        y=620
-
         for label in action_labels:
-            self.action_buttons.append(Button(label,panel_x+20,y,self.width-40,30))
-            y+=45
+            self.action_buttons.append(Button(label,0,0,0,26))
 
         
     def draw(self, screen, stats):
 
         panel_rect = pygame.Rect(screen.get_width() - self.width, 0,self.width,screen.get_height())
+        panel_x = panel_rect.left
+        button_x = panel_x + 12
+        button_width = self.width - 24
+
 
         pygame.draw.rect(screen, self.background, panel_rect)
 
@@ -59,7 +56,7 @@ class Panel:
         # Title
         title = self.title_font.render("Gravity Simulator",True,"white")
 
-        screen.blit(title, (panel_rect.left + 20, 20))
+        screen.blit(title, (panel_rect.left + 20,20))
 
         y = 70
 
@@ -69,7 +66,7 @@ class Panel:
         pygame.draw.line(screen,(80, 80, 80),(panel_rect.left + 15, 60),(panel_rect.right - 15, 60),2)
 
         screen.blit(heading,(panel_rect.left+20, y))
-        y+=35
+        y+=28
 
         for key, value in stats.items():
 
@@ -81,10 +78,10 @@ class Panel:
 
             screen.blit(text, (panel_rect.left + 30, y))
 
-            y += 28
+            y += 24
 
-        y+=15
-        y+=len(self.preset_buttons)*45
+        y+=10
+
         pygame.draw.line(screen,(70,70,70),(panel_rect.left+15,y),(panel_rect.right-15,y),2)
 
         y+=20
@@ -99,8 +96,15 @@ class Panel:
 
         ###wip
         for button in self.preset_buttons:
+
+            button.rect.x = button_x
+            button.rect.y = y
+            button.rect.width = button_width
+            button.rect.height = 30
+
             button.draw(screen)
 
+            y += 32
         
 
         pygame.draw.line(screen,(70,70,70),(panel_rect.left+15,y),(panel_rect.right-15,y),2)
@@ -116,8 +120,15 @@ class Panel:
         y+=40
 
         for button in self.action_buttons:
+
+            button.rect.x = button_x
+            button.rect.y = y
+            button.rect.width = button_width
+            button.rect.height = 30
+
             button.draw(screen)
 
+            y += 32
 
         
 
