@@ -1,7 +1,6 @@
 import math
 import numpy as np
-
-G=50000
+from utils.constants import G
 
 def compute_acceleration(body,bodies):
     acc_x=0
