@@ -4,7 +4,7 @@ class Button:
     def __init__(self,text,x,y,width,height):
         self.text = text
         self.rect = pygame.Rect(x,y,width,height)
-        self.font = pygame.font.SysFont(None,28)
+        self.font = pygame.font.SysFont("Segoe UI", 18)
 
         self.bg = (45,45,60)
         self.hover = (70,70,100)
