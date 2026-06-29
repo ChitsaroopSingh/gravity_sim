@@ -12,6 +12,8 @@ from controls.camera_controls import update_camera_keyboard
 from utils.constants import *
 from ui.panel import Panel
 
+from presets.preset_loader import load_preset
+
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
@@ -140,20 +142,41 @@ while running:
 
         clicked = panel.handle_event(event)
         if clicked:
-            print(clicked)
-    # if state == "setup":
-    #     screen.fill("black")
+            if clicked in [
+        "Random",
+        "Sun-Earth",
+        "Earth-Moon",
+        "Binary Stars",
+        "Figure-8",
+        "Infinity",
+        "Solar System"
+    ]:
 
-    #     text = font.render("SETUP SCREEN", True, "white")
-    #     screen.blit(text, (500, 100))
+                bodies = load_preset(clicked)
+                #TEST
+                print("Bodies after loading:", len(bodies))
+                for b in bodies:
+                    print(b.color, b.position)
+                state = "simulation"
+                creating_body = False
+                start_world_pos = None
 
-    #     hint = font.render("Press ENTER to start simulation", True, "white")
-    #     screen.blit(hint, (420, 200))
 
-    #     pygame.display.flip()
-    #     clock.tick(60)
+                paused = False
 
-    #     continue
+                camera.x = 0
+                camera.y = 0
+                camera.zoom = 1.0
+        if clicked == "Pause":
+            paused = not paused
+
+        elif clicked == "Reset Camera":
+            camera.x = 0
+            camera.y = 0
+            camera.zoom = 1.0
+
+        elif clicked == "Clear Bodies":
+            bodies.clear()
     update_camera_keyboard(camera, dt)
  
     #setting the background
