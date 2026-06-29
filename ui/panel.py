@@ -10,8 +10,9 @@ class Panel:
         self.background = (20, 20, 30)
         self.border = (120, 120, 120)
         
-        self.title_font = pygame.font.SysFont(None, 34)
-        self.text_font = pygame.font.SysFont(None, 28)       
+        self.title_font = pygame.font.SysFont("Segoe UI", 26, bold=True)
+        self.heading_font = pygame.font.SysFont("Segoe UI", 22, bold=True)
+        self.text_font = pygame.font.SysFont("Segoe UI", 18)      
         self.preset_buttons = []
         self.action_buttons = []
 
@@ -30,7 +31,7 @@ class Panel:
         panel_x = 1280 - self.width
         for label in labels:
 
-            self.preset_buttons.append(Button(label,panel_x+20,y,self.width-40,35))
+            self.preset_buttons.append(Button(label,panel_x+20,y,self.width-40,30))
             y += 45
 
         action_labels = [
@@ -42,7 +43,7 @@ class Panel:
         y=620
 
         for label in action_labels:
-            self.action_buttons.append(Button(label,panel_x+20,y,self.width-40,35))
+            self.action_buttons.append(Button(label,panel_x+20,y,self.width-40,30))
             y+=45
 
         
