@@ -149,7 +149,7 @@ while running:
         "Binary Stars",
         "Figure-8",
         "Infinity",
-        "Solar System"
+        "Solar-System"
     ]:
 
                 bodies = load_preset(clicked)
