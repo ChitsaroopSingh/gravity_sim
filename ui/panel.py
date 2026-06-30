@@ -24,7 +24,7 @@ class Panel:
             "Binary Stars",
             "Figure-8",
             "Infinity",
-            "Solar System"
+            "Solar-System"
         ]
 
         for label in labels:
